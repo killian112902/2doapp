@@ -1,7 +1,8 @@
 {
-  "buildCommand": "npm install && npm run build",
-  "outputDirectory": "public/build",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+  "builds": [
+    { "src": "Dockerfile", "use": "@vercel/docker" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/" }
   ]
 }
