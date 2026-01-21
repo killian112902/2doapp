@@ -5,8 +5,6 @@ ARG PHP_VERSION=8.2
 # 1) Composer dependencies
 FROM composer:2 AS vendor
 WORKDIR /app
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 COPY . .
 RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
