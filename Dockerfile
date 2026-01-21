@@ -43,10 +43,12 @@ COPY --from=vendor /app /var/www/html
 COPY --from=assets /app/public/build /var/www/html/public/build
 
 # Nginx + supervisord configs
-COPY docker/nginx.conf /etc/nginx/http.d/default.conf
+COPY docker/nginx.conf /etc/nginx/http.d/default.conf.template
 COPY docker/supervisord.conf /etc/supervisord.conf
+COPY docker/entrypoint.sh /entrypoint.sh
 
-RUN chown -R www-data:www-data storage bootstrap/cache && \
+RUN chmod +x /entrypoint.sh && \
+	chown -R www-data:www-data storage bootstrap/cache && \
 	mkdir -p /run/nginx
 
 ENV APP_ENV=production \
@@ -56,4 +58,5 @@ ENV APP_ENV=production \
 
 EXPOSE 8080
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["supervisord", "-c", "/etc/supervisord.conf"]
