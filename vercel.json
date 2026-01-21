@@ -1,7 +1,6 @@
 {
   "buildCommand": "npm install && npm run build",
   "outputDirectory": "public/build",
-  "ignoreCommand": "echo 'Always build'",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
