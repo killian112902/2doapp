@@ -1,0 +1,45 @@
+
+services:
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env.docker
+    environment:
+      # Fallbacks if not provided in .env.docker
+      APP_KEY: base64:frBD6HUWgY1R5rtvWTdmAhXSaimOee4XMJ0dqbqRUjU=
+      APP_ENV: production
+      APP_URL: http://localhost:8080
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: mytodo
+      DB_USERNAME: mytodo
+      DB_PASSWORD: mytodo
+    volumes:
+      - ./:/var/www/html
+    command: ["supervisord", "-c", "/etc/supervisord.conf"]
+
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: mytodo
+      MYSQL_USER: mytodo
+      MYSQL_PASSWORD: mytodo
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
