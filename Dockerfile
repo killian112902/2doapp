@@ -12,7 +12,9 @@ RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --opt
 FROM node:20-alpine AS assets
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
+# Install Alpine build dependencies required by native modules, then install JS deps
+RUN apk add --no-cache python3 build-base ca-certificates git && \
+	npm ci --no-audit --no-fund
 COPY . .
 RUN npm run build
 
