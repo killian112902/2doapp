@@ -3,8 +3,8 @@
 Thumbs.db
 
 # Environment
-#.env
-#.env.*
+.env
+.env.*
 .env.backup
 .env.production
 
