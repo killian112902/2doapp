@@ -161,6 +161,9 @@
                 </label>
                 <button class="button" type="submit">Sign in</button>
             </div>
+            <div style="margin-top:10px; text-align: right;">
+                <a href="/forgot-password">Forgot your password?</a>
+            </div>
         </form>
 
         <div class="footer">Need an account? <a href="/register">Create one here.</a></div>
