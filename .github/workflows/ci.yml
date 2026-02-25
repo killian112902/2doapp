@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+    branches: [ '**' ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, bcmath, xml, ctype, fileinfo, mysqli, pdo_mysql
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build --if-present
+
+      - name: Copy example env
+        run: cp .env.example .env || true
+
+      - name: Generate app key
+        run: php artisan key:generate --ansi
+
+      - name: Wait for MySQL
+        run: |
+          n=0
+          until mysqladmin ping -h127.0.0.1 -uroot -proot >/dev/null 2>&1 || [ $n -ge 60 ]; do
+            n=$((n+1))
+            sleep 1
+          done
+
+      - name: Configure DB connection for CI
+        run: |
+          php -r "file_put_contents('.env', preg_replace('/DB_CONNECTION=.*/', 'DB_CONNECTION=mysql', file_get_contents('.env')));"
+
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit --testdox
